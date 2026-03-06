@@ -465,7 +465,6 @@
     
     form.addEventListener('submit', function(e){
       e.preventDefault();
-      e.stopPropagation();
     
       const formData = new FormData(form);
     
@@ -473,17 +472,12 @@
         method: "POST",
         body: formData,
         mode: "no-cors"
-      })
-      .then(() => {
-        successMsg.style.display = 'block';
-        form.reset();
-      })
-      .catch(() => {
-        alert("Ошибка отправки формы");
       });
     
-      return false;
+      successMsg.style.display = 'block';
+      form.reset();
     });
+    
   </script>
 </body>
 </html>
