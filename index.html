@@ -460,41 +460,36 @@
   setInterval(updateCountdown, 1000);
 })();
 
-// Этот код теперь в глобальной области и будет работать
 const form = document.getElementById('rsvpForm');
 const successMsg = document.getElementById('successMsg');
 
-if (form) {
-  form.addEventListener('submit', function(e){
-    e.preventDefault();
+form.addEventListener('submit', function(e){
+  e.preventDefault();
+  
+  // Создаем скрытый iframe
+  const iframe = document.createElement('iframe');
+  iframe.name = 'hidden_iframe';
+  iframe.style.display = 'none';
+  document.body.appendChild(iframe);
+  
+  // Меняем target формы на iframe
+  form.target = 'hidden_iframe';
+  
+  // Показываем сообщение
+  successMsg.style.display = 'block';
+  
+  // Отправляем форму обычным способом
+  form.submit();
+  
+  // Возвращаем всё обратно
+  setTimeout(() => {
+    form.target = '';
+    document.body.removeChild(iframe);
+    form.reset();
     
-    const formData = new FormData(form);
-    
-    // Отправляем через fetch без mode: "no-cors"
-    fetch(form.action, {
-      method: "POST",
-      body: formData
-    })
-    .then(response => {
-      // Даже если response не ok, показываем сообщение
-      successMsg.style.display = 'block';
-      form.reset();
-      
-      // Скрываем сообщение через 5 секунд
-      setTimeout(() => {
-        successMsg.style.display = 'none';
-      }, 5000);
-    })
-    .catch(error => {
-      // В случае ошибки тоже показываем сообщение
-      console.log('Ошибка отправки, но данные вероятно сохранены:', error);
-      successMsg.style.display = 'block';
-      form.reset();
-      
-      setTimeout(() => {
-        successMsg.style.display = 'none';
-      }, 5000);
-    });
-  });
-}
+    setTimeout(() => {
+      successMsg.style.display = 'none';
+    }, 3000);
+  }, 1000);
+});
 </script>
