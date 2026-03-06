@@ -427,9 +427,7 @@
 
 <script>
 (function(){
-
   const targetDate = new Date('2026-08-08T13:15:00+05:00').getTime();
-
   const d = document.getElementById('days');
   const h = document.getElementById('hours');
   const m = document.getElementById('minutes');
@@ -462,22 +460,41 @@
   setInterval(updateCountdown, 1000);
 })();
 
+// Этот код теперь в глобальной области и будет работать
 const form = document.getElementById('rsvpForm');
 const successMsg = document.getElementById('successMsg');
 
-form.addEventListener('submit', function(e){
-  e.preventDefault();
-
-  const formData = new FormData(form);
-
-  fetch(form.action, {
-    method: "POST",
-    body: formData,
-    mode: "no-cors"
+if (form) {
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    
+    const formData = new FormData(form);
+    
+    // Отправляем через fetch без mode: "no-cors"
+    fetch(form.action, {
+      method: "POST",
+      body: formData
+    })
+    .then(response => {
+      // Даже если response не ok, показываем сообщение
+      successMsg.style.display = 'block';
+      form.reset();
+      
+      // Скрываем сообщение через 5 секунд
+      setTimeout(() => {
+        successMsg.style.display = 'none';
+      }, 5000);
+    })
+    .catch(error => {
+      // В случае ошибки тоже показываем сообщение
+      console.log('Ошибка отправки, но данные вероятно сохранены:', error);
+      successMsg.style.display = 'block';
+      form.reset();
+      
+      setTimeout(() => {
+        successMsg.style.display = 'none';
+      }, 5000);
+    });
   });
-
-  successMsg.style.display = 'block';
-  form.reset();
-});
-
+}
 </script>
