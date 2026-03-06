@@ -359,12 +359,12 @@
 
     <section class="section">
       <h2>Анкета гостя</h2>
-      <form id="rsvpForm">
+      <form id="rsvpForm" method="POST" action="https://script.google.com/macros/s/AKfycbxkslD1E-h8mscYi3ZfRPah7f4yYNAXODn6zB0CF9UbrZOlgHn7CaSUfBqy1gSabU7c/exec">
         <div class="field">
           <label for="guestName">Имя и фамилия гостя / гостей</label>
           <input 
           id="guestName"
-          name="guestName"
+          name="name"
           type="text"
           placeholder="Например: Иван Иванов и Анна Иванова"
           pattern="[A-Za-zА-Яа-яЁё\s]+"
