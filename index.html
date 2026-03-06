@@ -465,19 +465,43 @@
     
     form.addEventListener('submit', function(e){
       e.preventDefault();
-    
+      
+      // Создаем данные для отправки
       const formData = new FormData(form);
-    
+      
+      // Преобразуем FormData в URL-encoded строку
+      const urlEncodedData = new URLSearchParams(formData).toString();
+      
+      // Отправляем данные с правильными заголовками
       fetch(form.action, {
         method: "POST",
-        body: formData,
-        mode: "no-cors"
+        body: urlEncodedData,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      })
+      .then(response => {
+        // Проверяем, что запрос выполнен успешно
+        if (response.ok || response.type === 'opaque') {
+          successMsg.style.display = 'block';
+          form.reset();
+          
+          // Скрываем сообщение через 5 секунд
+          setTimeout(() => {
+            successMsg.style.display = 'none';
+          }, 5000);
+        } else {
+          throw new Error('Ошибка отправки');
+        }
+      })
+      .catch(error => {
+        console.error('Ошибка:', error);
+        alert('Произошла ошибка при отправке. Пожалуйста, попробуйте еще раз или свяжитесь с нами.');
       });
-    
-      successMsg.style.display = 'block';
-      form.reset();
     });
     
+    // Дополнительно: проверка, что форма действительно отправляет данные
+    console.log('Форма инициализирована, action:', form.action);
   </script>
 </body>
 </html>
