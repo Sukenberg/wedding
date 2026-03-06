@@ -379,7 +379,7 @@
             <label class="radio-card"><input type="radio" name="attendance" value="Не приду" required> Не приду</label>
           </div>
         </div>
-        <button class="btn" type="button">Отправить ответ</button>
+        <button class="btn" type="submit">Отправить ответ</button>
         <div class="success" id="successMsg">Спасибо! Ваш ответ сохранён. Мы свяжемся с вами при необходимости.</div>
       </form>
     </section>
@@ -459,29 +459,22 @@
       updateCountdown();
       setInterval(updateCountdown, 1000);
 
-      const form = document.getElementById('rsvpForm');
-      const successMsg = document.getElementById('successMsg');
-      
-      form.addEventListener('submit', function(e){
-        e.preventDefault();
-        e.stopPropagation();
-      
-        const formData = new FormData(form);
-      
-        fetch(form.action, {
-          method: "POST",
-          body: formData,
-          mode: "no-cors"
-        })
-        .then(() => {
-          successMsg.style.display = 'block';
-          form.reset();
-        })
-        .catch(() => {
-          alert("Ошибка отправки формы");
-        });
-      
-        return false;
-      });
+const form = document.getElementById('rsvpForm');
+const successMsg = document.getElementById('successMsg');
+
+form.addEventListener('submit', function(e){
+  e.preventDefault();
+
+  const formData = new FormData(form);
+
+  fetch(form.action, {
+    method: "POST",
+    body: formData,
+    mode: "no-cors"
+  });
+
+  successMsg.style.display = 'block';
+  form.reset();
+});
 </body>
 </html>
