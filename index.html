@@ -425,7 +425,7 @@
     <div class="footer">С любовью, Михаил и Лидия</div>
   </div>
 
-  <script>
+   <script>
     (function(){
       const targetDate = new Date('2026-08-08T13:15:00+05:00').getTime();
       const d = document.getElementById('days');
@@ -458,45 +458,28 @@
 
       updateCountdown();
       setInterval(updateCountdown, 1000);
-    })();
 
-    const form = document.getElementById('rsvpForm');
-    const successMsg = document.getElementById('successMsg');
-    
-    form.addEventListener('submit', function(e){
-      e.preventDefault();
+           const form = document.getElementById('rsvpForm');
+      const successMsg = document.getElementById('successMsg');
       
-      // Создаем объект с данными формы
-      const formData = new FormData(form);
+      form.addEventListener('submit', function(e){
+        e.preventDefault();
+        e.stopPropagation();
       
-      // Отправляем данные через fetch с правильными настройками
-      fetch(form.action, {
-        method: "POST",
-        body: formData,
-        // Убираем mode: "no-cors" - это важно!
-      })
-      .then(response => {
-        // Проверяем успешность ответа
-        if (response.ok) {
+        const formData = new FormData(form);
+      
+        fetch(form.action, {
+          method: "POST",
+          body: formData,
+          mode: "no-cors"
+        })
+        .then(() => {
           successMsg.style.display = 'block';
           form.reset();
-          
-          // Скрываем сообщение через 5 секунд
-          setTimeout(() => {
-            successMsg.style.display = 'none';
-          }, 5000);
-        } else {
-          // Если ответ не успешный, показываем ошибку
-          console.error('Ошибка сервера:', response.status);
-          alert('Произошла ошибка при отправке. Пожалуйста, попробуйте еще раз.');
-        }
-      })
-      .catch(error => {
-        // Ловим ошибки сети
-        console.error('Ошибка сети:', error);
-        alert('Не удалось отправить данные. Проверьте подключение к интернету.');
+        })
+        .catch(() => {
+          alert("Ошибка отправки формы");
+        });
+      
+        return false;
       });
-    });
-  </script>
-</body>
-</html>
