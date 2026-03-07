@@ -462,9 +462,11 @@
 
 const form = document.getElementById('rsvpForm');
 const successMsg = document.getElementById('successMsg');
+const nameInput = document.getElementById('guestName');
 
-// Сохраняем оригинальный action
-const originalAction = form.action;
+// Разрешаем ввод запятой и пробелов
+nameInput.pattern = "[A-Za-zА-Яа-яЁё\\s,]+";
+nameInput.title = "Введите имена через запятую (например: Иван Иванов, Анна Иванова)";
 
 form.addEventListener('submit', function(e){
   e.preventDefault();
@@ -472,8 +474,8 @@ form.addEventListener('submit', function(e){
   // Показываем сообщение
   successMsg.style.display = 'block';
   
-  // Отправляем данные через Image (самый надежный способ)
-  const name = document.getElementById('guestName').value;
+  // Получаем данные
+  let name = document.getElementById('guestName').value;
   const attendance = document.querySelector('input[name="attendance"]:checked')?.value;
   
   if (!attendance) {
@@ -482,12 +484,15 @@ form.addEventListener('submit', function(e){
     return;
   }
   
-  // Создаем URL с параметрами
-  const url = originalAction + '?name=' + encodeURIComponent(name) + 
-              '&attendance=' + encodeURIComponent(attendance) +
-              '&t=' + Date.now(); // Добавляем timestamp чтобы избежать кэширования
+  // Убираем лишние пробелы вокруг запятых для красоты
+  name = name.replace(/\s*,\s*/g, ', ');
   
-  // Используем Image для отправки (работает везде)
+  // Создаем URL с параметрами
+  const url = form.action + '?name=' + encodeURIComponent(name) + 
+              '&attendance=' + encodeURIComponent(attendance) +
+              '&t=' + Date.now();
+  
+  // Отправляем данные
   const img = new Image();
   img.src = url;
   
