@@ -466,30 +466,77 @@ const successMsg = document.getElementById('successMsg');
 form.addEventListener('submit', function(e){
   e.preventDefault();
   
-  // Создаем скрытый iframe
-  const iframe = document.createElement('iframe');
-  iframe.name = 'hidden_iframe';
-  iframe.style.display = 'none';
-  document.body.appendChild(iframe);
-  
-  // Меняем target формы на iframe
-  form.target = 'hidden_iframe';
-  
-  // Показываем сообщение
+  // Показываем сообщение сразу
   successMsg.style.display = 'block';
   
-  // Отправляем форму обычным способом
-  form.submit();
+  // Собираем данные формы
+  const name = document.getElementById('guestName').value;
+  const attendance = document.querySelector('input[name="attendance"]:checked')?.value;
   
-  // Возвращаем всё обратно
-  setTimeout(() => {
-    form.target = '';
-    document.body.removeChild(iframe);
+  if (!attendance) {
+    alert('Пожалуйста, выберите вариант присутствия');
+    successMsg.style.display = 'none';
+    return;
+  }
+  
+  // Создаем уникальное имя для callback
+  const callbackName = 'jsonp_callback_' + Date.now();
+  
+  // Создаем URL с параметрами
+  const url = form.action + '?callback=' + callbackName + 
+              '&name=' + encodeURIComponent(name) + 
+              '&attendance=' + encodeURIComponent(attendance);
+  
+  // Создаем функцию callback в глобальной области
+  window[callbackName] = function(response) {
+    // Успешно получили ответ
+    console.log('Ответ получен:', response);
+    
+    // Очищаем
+    delete window[callbackName];
+    document.body.removeChild(script);
     form.reset();
     
     setTimeout(() => {
       successMsg.style.display = 'none';
     }, 3000);
-  }, 1000);
+  };
+  
+  // Создаем script тег для JSONP запроса
+  const script = document.createElement('script');
+  script.src = url;
+  
+  // Обработка ошибок
+  script.onerror = function() {
+    console.log('Ошибка загрузки, но данные возможно отправлены');
+    
+    // Даже при ошибке показываем успех (Google Script часто не возвращает ответ)
+    delete window[callbackName];
+    document.body.removeChild(script);
+    form.reset();
+    
+    setTimeout(() => {
+      successMsg.style.display = 'none';
+    }, 3000);
+  };
+  
+  // Добавляем скрипт на страницу
+  document.body.appendChild(script);
+  
+  // Таймаут на случай если ничего не вернулось
+  setTimeout(() => {
+    if (window[callbackName]) {
+      console.log('Таймаут, но считаем отправку успешной');
+      delete window[callbackName];
+      if (script.parentNode) {
+        document.body.removeChild(script);
+      }
+      form.reset();
+      
+      setTimeout(() => {
+        successMsg.style.display = 'none';
+      }, 3000);
+    }
+  }, 5000);
 });
 </script>
