@@ -463,13 +463,16 @@
 const form = document.getElementById('rsvpForm');
 const successMsg = document.getElementById('successMsg');
 
+// Сохраняем оригинальный action
+const originalAction = form.action;
+
 form.addEventListener('submit', function(e){
   e.preventDefault();
   
-  // Показываем сообщение сразу
+  // Показываем сообщение
   successMsg.style.display = 'block';
   
-  // Собираем данные формы
+  // Отправляем данные через Image (самый надежный способ)
   const name = document.getElementById('guestName').value;
   const attendance = document.querySelector('input[name="attendance"]:checked')?.value;
   
@@ -479,64 +482,21 @@ form.addEventListener('submit', function(e){
     return;
   }
   
-  // Создаем уникальное имя для callback
-  const callbackName = 'jsonp_callback_' + Date.now();
-  
   // Создаем URL с параметрами
-  const url = form.action + '?callback=' + callbackName + 
-              '&name=' + encodeURIComponent(name) + 
-              '&attendance=' + encodeURIComponent(attendance);
+  const url = originalAction + '?name=' + encodeURIComponent(name) + 
+              '&attendance=' + encodeURIComponent(attendance) +
+              '&t=' + Date.now(); // Добавляем timestamp чтобы избежать кэширования
   
-  // Создаем функцию callback в глобальной области
-  window[callbackName] = function(response) {
-    // Успешно получили ответ
-    console.log('Ответ получен:', response);
-    
-    // Очищаем
-    delete window[callbackName];
-    document.body.removeChild(script);
-    form.reset();
-    
-    setTimeout(() => {
-      successMsg.style.display = 'none';
-    }, 3000);
-  };
+  // Используем Image для отправки (работает везде)
+  const img = new Image();
+  img.src = url;
   
-  // Создаем script тег для JSONP запроса
-  const script = document.createElement('script');
-  script.src = url;
+  // Сбрасываем форму
+  form.reset();
   
-  // Обработка ошибок
-  script.onerror = function() {
-    console.log('Ошибка загрузки, но данные возможно отправлены');
-    
-    // Даже при ошибке показываем успех (Google Script часто не возвращает ответ)
-    delete window[callbackName];
-    document.body.removeChild(script);
-    form.reset();
-    
-    setTimeout(() => {
-      successMsg.style.display = 'none';
-    }, 3000);
-  };
-  
-  // Добавляем скрипт на страницу
-  document.body.appendChild(script);
-  
-  // Таймаут на случай если ничего не вернулось
+  // Скрываем сообщение через 3 секунды
   setTimeout(() => {
-    if (window[callbackName]) {
-      console.log('Таймаут, но считаем отправку успешной');
-      delete window[callbackName];
-      if (script.parentNode) {
-        document.body.removeChild(script);
-      }
-      form.reset();
-      
-      setTimeout(() => {
-        successMsg.style.display = 'none';
-      }, 3000);
-    }
-  }, 5000);
+    successMsg.style.display = 'none';
+  }, 3000);
 });
 </script>
